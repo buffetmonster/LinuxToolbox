@@ -1,0 +1,75 @@
+#Notes for retropie in ubuntu PC
+#from here
+#https://www.click4infos.com/super-nintendo-snes9x-emulator/
+#remove old retropie
+#sudo apt remove retroarch
+sudo add-apt-repository ppa:libretro/stable
+sudo apt upgrade
+sudo apt-get install retroarch libretro-snes9x 
+sudo apt-get install libretro-mgba
+
+sysbench --test=cpu --cpu-max-prime=5000 --num-threads=4 run
+#10 seconds
+
+#Notes for retropie
+sudo apt-get install software-properties-common
+
+
+git clone https://github.com/libretro/RetroArch.git
+CFLAGS='-mfpu=neon' ./configure --enable-alsa --enable-udev --enable-floathard --enable-neon --enable-dispmanx --disable-opengl1
+make
+sudo make install
+
+retroarch
+xrandr --output HDMI-2 --mode 800x600
+
+
+#finally like this
+   87  sudo apt install snapd
+   88  sudo snap install core
+   89  sudo snap install retroarch
+   #didnt work sudo snap install emulationstation
+
+93  sudo bluetoothctl
+   94  sudo apt-get install joystick
+   95  sudo jstest /dev/input/js0
+   96  sudo bluetoothctl
+   97  echo 'options bluetooth disable_ertm=Y' | sudo tee -a /etc/modprobe.d/bluetooth.conf
+   98  cat /etc/modprobe.d/bluetooth.conf
+   99  sudo bluetoothctl
+  100  ls /dev/input/js0
+  101  sudo jstest /dev/input/js0
+  #for xbox controller
+  sudo jstest /dev/input/by-id/usb-Microsoft_Controller_3033363030303437323737383233-joystick 
+  sudo snap remove retroarch
+  #did this as controller not working, try reinstall
+  sudo snap install retroarch
+  sudo apt full-upgrade
+  sudo snap install retroarch
+#should restore before reboot!
+/etc/ld.so.preload
+sudo apt install retroarch
+
+xrandr --output HDMI-1 --mode 1280x800
+
+#notes on windows
+Show animations in windows setting
+Press Windows+Pause (or Pause Break) to open System.
+Choose Advanced system settings on the left.
+As the System Properties dialog appears, click Settings in Performance.
+Deselect or select Animations in the taskbar to turn it off or on, and then hit OK.
+#notes for installing ssh keys on pi
+#setup ssh keys, probably only needs to be set up on the client side
+sudo apt install sh-keygen
+ssh-keygen -t ed25519
+#now copy key from client dev environment (not pi)
+ssh-copy-id pi@192.168.1.188
+#passwd to setup new password, it's elitebook
+passwd
+#copy some files
+scp -r HelloWorld pi@192.168.1.188:///home/pi/RaspPie/.
+#github projects
+git clone git@github.com:buffetmonster/LinuxPiToolbox.git
+d_r_swan@hotmail.com
+MyGitLogin1234!
+
