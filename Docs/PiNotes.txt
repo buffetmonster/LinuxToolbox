@@ -69,7 +69,12 @@ passwd
 #copy some files
 scp -r HelloWorld pi@192.168.1.188:///home/pi/RaspPie/.
 #github projects
-git clone git@github.com:buffetmonster/LinuxPiToolbox.git
+git clone git@github.com:buffetmonster/LinuxToolbox.git
 d_r_swan@hotmail.com
 MyGitLogin1234!
 
+#tried to install meld, not really compatable with wsl2, so removed and sybolically linked windows versions of the tool.
+sudo apt remove meld
+sudo apt purge meld
+#Symbolic Links
+sudo ln -s /mnt/c/Program\ Files\ \(x86\)/Meld/Meld.exe /usr/bin/meld
