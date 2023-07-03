@@ -7,8 +7,8 @@ if [ -z ${WSL_DISTRO_NAME} ]; then
     echo "Not running WLS"
     CUSTOM_NAME=${HOSTNAME}
 else
-    echo "Running WLS"
     CUSTOM_NAME=${WSL_DISTRO_NAME}
+    echo "Running WLS: $WSL_DISTRO_NAME"
 fi
 PS1="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
 
@@ -96,15 +96,20 @@ fi
 if [ $# -eq 1 ]; then
   echo 'One params passed'
   echo " "
-  echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
-  SSHFS='sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
-  MOUNTDIR="/home/dsw12/remote-mount"
+  #echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+  #SSHFS='sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+  #MOUNTDIR="/home/dsw12/remote-mount"
+  if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+  echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:$STRINGPATH /home/dsw12/remote-mount/'
+  SSHFS="sshfs -o allow_other dsw12@slab:"$STRINGPATH" /home/dsw12/remote-mount/"
+  MOUNTDIR="/home/dsw12/remote-mount/"
 fi
 if [ $# -eq 2 ]; then
   echo 'Two params passed'
   echo " "
-  echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:/home/dsw12/$1 /home/dsw12/$2'
-  SSHFS="sshfs -o allow_other dsw12@slab:/home/dsw12/$1 /home/dsw12/$2"
+  if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+  echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:$STRINGPATH /home/dsw12/$2'
+  SSHFS="sshfs -o allow_other dsw12@slab:"$STRINGPATH" /home/dsw12/$2"
   MOUNTDIR="/home/dsw12/$2"
 fi
 
@@ -175,6 +180,25 @@ do
 	ssh -D 9998 orcus -C2Nn
 	done
 }
+
+go_explorer(){
+if [ -z "$1" ]; then
+  Directory="$PWD/."
+  echo "open explorer in current directory: $Directory"
+else
+  Directory=$1
+  echo "open explorer in directory: $Directory"
+fi
+echo "Looking good, y to accept: explorer.exe ${Directory}"
+read ContinueState
+if [ "$ContinueState" != "y" ]; then
+echo "bye!"
+  return 1
+fi
+explorer.exe `wslpath -w "$Directory"`
+#explorer.exe .
+}
+
 return 0
 #below just trash
 go_names(){
