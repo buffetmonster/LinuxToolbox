@@ -12,7 +12,243 @@ else
 fi
 PS1="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
 
+#Are we on the server slab
+if [ "$HOSTNAME" = slab ]; then
+    #printf '%s\n' "on the right host"
+    echo "Running on slab"
+    go_python_virtual_env()
+    {
+    #Setup virtual env by default
+    #export PATH=$PATH:/opt/repo_flow/
+    #export WORKON_HOME=/home/dswan
+    #source ~/PythonVirtualEnv/bin/activate
+    #export PATH=$PATH:~/local_progs/pypy3.7-v7.3.7-linux64/bin
+    echo $PATH
+    source ~/venv/bin/activate
+    #source ./PythonCollection/venv/bin/activate
+    echo #############
+    echo Default Virtual Env Started
+    echo #############
+    }
+    go_python_deactivate()
+    {
+    echo #############
+    echo Default Virtual Env deactivated
+    echo #############
+    deactivate
+    }
+else #NOT RUNNING ON SLAB
+    #printf '%s\n' "uh-oh, not on foo"
+    echo "Not running on slab"
 
+    go_mrbox_ssh(){
+    echo 'sshpass -p 'themoose' ssh darwin@192.168.1.140'
+    echo 'for ifconfig: /sbin/ifconfig'
+    sshpass -p 'themoose' ssh darwin@192.168.1.140
+    }
+
+    go_mrbox_telnet(){
+    echo 'telnet 192.168.1.140'
+    telnet 192.168.1.140
+    }
+
+    go_ping_network(){
+    echo 'ping network'
+    for range in {0..255};
+    do
+    IPADDRESS="192.168.1.$range"
+    if ping -q -c1 -w1 $IPADDRESS >/dev/null; then
+      echo ""
+      echo "$IPADDRESS:up"
+    else
+      echo -n "."
+    fi
+    done
+    }
+
+    go_pi_ssh(){
+    echo '_ssh pi@192.168.1.188'
+    ssh pi@192.168.1.188
+    }
+
+    go_slab_ssh(){
+    echo '_ssh dsw12@slab'
+    ssh dsw12@slab
+    }
+
+    go_slab_sshfs(){
+    if [ -z "$1" ]
+      then
+        echo 'verbose example: sshfs -o allow_other dsw12@slab:/home/dsw12/RDK_Downloads/ /home/dsw12/remote-mount/'
+        echo 'sshfs -o allow_other dsw12@slab:/home/dsw12/'$1 $2
+        echo "add remote path, local will default to /home/dsw12/remote-mount/ if no path provide"
+        return 1
+    fi
+    if [ $# -eq 1 ]; then
+      echo 'One params passed'
+      echo " "
+      #echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+      #SSHFS='sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+      #MOUNTDIR="/home/dsw12/remote-mount"
+      if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+      echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:$STRINGPATH /home/dsw12/remote-mount/'
+      SSHFS="sshfs -o allow_other dsw12@slab:"$STRINGPATH" /home/dsw12/remote-mount/"
+      MOUNTDIR="/home/dsw12/remote-mount/"
+    fi
+    if [ $# -eq 2 ]; then
+      echo 'Two params passed'
+      echo " "
+      if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+      echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:$STRINGPATH /home/dsw12/$2'
+      SSHFS="sshfs -o allow_other dsw12@slab:"$STRINGPATH" /home/dsw12/$2"
+      MOUNTDIR="/home/dsw12/$2"
+    fi
+
+    echo "Looking good, y to accept: ${SSHFS}"
+    read ContinueState
+
+    if [ "$ContinueState" != "y" ]; then
+    echo "bye!"
+      return 1
+    fi
+
+    if grep -qs $MOUNTDIR /proc/mounts 
+      then
+        #we never want to unmount if we're in the mounted directory.
+        #Belt and braces cd to home directory before umount then cd back to current directory to ensure it can't happen
+        CURRENTDIR=$PWD
+        cd ~/
+        echo "It's mounted, unmounting $MOUNTDIR"; umount $MOUNTDIR;
+        cd $CURRENTDIR
+    fi
+    #mount the directory
+    echo "Mounting: $MOUNTDIR"
+    $SSHFS
+    mount | grep sshfs
+    }
+
+    go_scp_from_pi(){
+    echo 'copy from pi, use . or path for destination'
+    echo "pi@192.168.1.188://home/pi/$1 $2"
+    scp -r pi@192.168.1.188://home/pi/$1 $2
+    }
+    go_scp_to_pi(){
+    echo 'copy to pi'
+    echo "scp -r $1 pi@192.168.1.188://home/pi/$2"
+    scp -r $1 pi@192.168.1.188://home/pi/$2
+    }
+
+    go_set_title(){
+      if [[ -z "$ORIG" ]]; then
+        ORIG=$PS1
+      fi
+      TITLE="\[\e]2;$*\a\]"
+      PS1=${ORIG}${TITLE}
+    }
+
+    go_mobx_home (){
+        echo "Mobaxterm home - WLS2 specific";
+        cd /mnt/c/Users/DSW12/MobaXterm/home/
+    }
+
+    go_get_wifi (){
+      netsh.exe wlan show profile "name=BT-PJA6W2" key=clear | grep "Key"
+    }
+
+    go_foxyproxy_ssh(){
+    echo 'ssh -D 9998 -C2Nn dev-jumphost'
+    echo 'FoxyProxy Host:localhost port:9998 SOCKS proxy AND Socks v5, 2 radio button, not one, no login authentication details needed'
+    echo 'URL pattern *bskyb*'
+    echo 'to reset keys (~/.ssh) it is ssh-copy-id dswan@10.241.0.89'
+    echo 'wait 2 seconds......'
+    sleep 2
+    mytitle="Foxy ProXy"
+    echo -e '\033]2;'$mytitle'\007'
+    for i in {1..50}
+    do
+    	pkill -9 ssh
+    	echo "Welcome orcus $i times-Starting foxyproxy ssh"
+    	ssh -D 9998 orcus -C2Nn
+    	done
+    }
+
+    go_explorer(){
+    if [ -z "$1" ]; then
+      Directory="$PWD/."
+      echo "open explorer in current directory: $Directory"
+    else
+      Directory=$1
+      echo "open explorer in directory: $Directory"
+    fi
+    echo "Looking good, y to accept: explorer.exe ${Directory}"
+    read ContinueState
+    if [ "$ContinueState" != "y" ]; then
+    echo "bye!"
+      return 1
+    fi
+    explorer.exe `wslpath -w "$Directory"`
+    #explorer.exe .
+    }
+fi
+#common bash functions can go here
+go_quotax()
+{
+du --max-depth=1 -h | sort -nr
+}
+go_clearx(){
+echo "clearing scrollback"
+printf '\033c\e[3J'
+}
+go_historyx()
+{
+history | cut -c 8-
+}
+go_lsx()
+{
+ls -l --time-style=+%Y
+}
+go_ag_shx(){
+echo "Will search shell scripts for given string"
+echo "find -iname \*.sh -exec grep -i '$1' {} \; -print"
+find -iname \*.sh -exec grep -i $1 {} \; -print
+}
+go_listx(){
+echo "last edited: 1 March 2018"
+echo "declare -F | grep 'go_'"
+echo "Local functions:"
+declare -F | grep 'go_'
+}
+go_funcx(){
+  declare -f $1
+}
+go_reloadx(){
+echo "reloading bash script: ~/LinuxToolbox (called via .bashrc)"
+echo "source  ~/.bashrc"
+#source  ~/LinuxToolbox/BashFunctions.sh
+source ~/.bashrc
+}
+return 0
+    #bob
+#echo "Run this 1"
+#return 0
+
+#return 0
+#alias goto="cat >/dev/null <<"
+#goto GOTO_1
+#jump = "GOTO_1"
+#echo ${jump}
+#return 0
+#goto [ ${jump} ];
+#cat >/dev/null <<GOTO_1
+
+#GOTO_1
+#echo "Run this 1"
+#return 0
+
+#GOTO_2
+
+#echo "Run this 2"
+#return 0
 #ALL BELOW VERY OLD AND COPIED FROM MOBAXTERM, CLEAN UP
 
 #echo "GLOBAL EXPORTS"
@@ -171,7 +407,7 @@ echo 'URL pattern *bskyb*'
 echo 'to reset keys (~/.ssh) it is ssh-copy-id dswan@10.241.0.89'
 echo 'wait 2 seconds......'
 sleep 2
-mytitle="Foxy Proxy"
+mytitle="Foxy ProXy"
 echo -e '\033]2;'$mytitle'\007'
 for i in {1..50}
 do
