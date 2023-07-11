@@ -1,6 +1,5 @@
 #ALL NEW SCRIPTS 2023
 
-#DRSMOD custom prompt & palette
 LS_COLORS='rs=0:di=1;35:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:';
 export LS_COLORS
 if [ -z ${WSL_DISTRO_NAME} ]; then
@@ -10,12 +9,13 @@ else
     CUSTOM_NAME=${WSL_DISTRO_NAME}
     echo "Running WLS: $WSL_DISTRO_NAME"
 fi
-PS1="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
-
 #Are we on the server slab
 if [ "$HOSTNAME" = slab ]; then
     #printf '%s\n' "on the right host"
     echo "Running on slab"
+    #On slab use default prompt, but backup as we need to restore post pythoon vert env
+    PS1_CFG=$PS1
+    ORIG=$PS1
     go_python_virtual_env()
     {
     #Setup virtual env by default
@@ -29,18 +29,42 @@ if [ "$HOSTNAME" = slab ]; then
     echo #############
     echo Default Virtual Env Started
     echo #############
+    #set the window title
+    go_set_titlex Python
+    cd ~/PythonCollection/MeshBuildScripts/mesh-pyhon-scripts-v2-ad-hoc/
     }
+    go_shell_spk()
+    {
+    echo "Setting up python"
+    go_python_virtual_env
+    cd ~/PythonCollection/MeshBuildScripts/mesh-pyhon-scripts-v2-ad-hoc/
+    #echo "cd to spk directory"
+    python 0.3-cd-spk.py
+    go_python_deactivate
+    #the python file extracts the currect spk directory and writes it into a shell script
+    source ~/env-spk.sh
+    echo "set shell name"
+    #restore PS after vert env deactivated
+    #PS1=$PS1_CFG
+    go_set_titlex SPK
+    }
+
     go_python_deactivate()
     {
     echo #############
     echo Default Virtual Env deactivated
     echo #############
     deactivate
+    #restore PS1
+    PS1=$PS1_CFG
     }
 else #NOT RUNNING ON SLAB
     #printf '%s\n' "uh-oh, not on foo"
     echo "Not running on slab"
-
+    #DRSMOD custom prompt & palette
+    PS1_CFG="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
+    #set Prompt
+    PS1=$PS1_CFG
     go_mrbox_ssh(){
     echo 'sshpass -p 'themoose' ssh darwin@192.168.1.140'
     echo 'for ifconfig: /sbin/ifconfig'
@@ -138,14 +162,6 @@ else #NOT RUNNING ON SLAB
     scp -r $1 pi@192.168.1.188://home/pi/$2
     }
 
-    go_set_title(){
-      if [[ -z "$ORIG" ]]; then
-        ORIG=$PS1
-      fi
-      TITLE="\[\e]2;$*\a\]"
-      PS1=${ORIG}${TITLE}
-    }
-
     go_mobx_home (){
         echo "Mobaxterm home - WLS2 specific";
         cd /mnt/c/Users/DSW12/MobaXterm/home/
@@ -162,7 +178,7 @@ else #NOT RUNNING ON SLAB
     echo 'to reset keys (~/.ssh) it is ssh-copy-id dswan@10.241.0.89'
     echo 'wait 2 seconds......'
     sleep 2
-    mytitle="Foxy ProXy"
+    mytitle="Foxy Proxy"
     echo -e '\033]2;'$mytitle'\007'
     for i in {1..50}
     do
@@ -226,6 +242,13 @@ echo "reloading bash script: ~/LinuxToolbox (called via .bashrc)"
 echo "source  ~/.bashrc"
 #source  ~/LinuxToolbox/BashFunctions.sh
 source ~/.bashrc
+}
+go_set_titlex(){
+if [[ -z "$ORIG" ]]; then
+  ORIG=$PS1
+fi
+TITLE="\[\e]2;$*\a\]"
+PS1=${ORIG}${TITLE}
 }
 return 0
     #bob
