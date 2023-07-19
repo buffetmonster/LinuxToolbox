@@ -240,6 +240,24 @@ else #NOT RUNNING ON SLAB
     echo $runcmd
     powershell.exe $runcmd
     }
+
+    go_network_check(){
+    if (ifconfig | grep "eth0" > /dev/null); then
+    MyNet="Network eth0"
+    elif (ifconfig | grep "inet" > /dev/null); then
+    MyNet="Network (but no eth0)"
+    else
+    echo -e "${RED}WARNING${NC}:Network down\n"
+    return 1
+    fi
+    if wget -q --spider http://google.com ; then
+    echo "$MyNet up & Online"
+    else
+    echo -e "$MyNet up & ${RED}Offline${NC}\n"
+    fi
+    }
+    #Scripts to run by default on slab
+    go_network_check
 fi #NOT RUNNING ON SLAB
 #common bash functions can go here
 go_quotax()
@@ -289,23 +307,6 @@ go_set_title_bannerx(){
 #echo -e '\033]2;'$mytitle'\007'
 echo -e '\033]2;'$*'\007'
 }
-go_network_checkx(){
-if (ifconfig | grep "eth01" > /dev/null); then
-MyNet="Network eth0"
-elif (ifconfig | grep "inet" > /dev/null); then
-MyNet="Network (but no eth0)"
-else
-echo -e "${RED}WARNING${NC}:Network down\n"
-return 1
-fi
-if wget -q --spider http://google.com ; then
-echo "$MyNet up & Online"
-else
-echo -e "$MyNet up & ${RED}Offline${NC}\n"
-fi
-}
-#Scripts to run by default
-go_network_checkx
 return 0
 
 
