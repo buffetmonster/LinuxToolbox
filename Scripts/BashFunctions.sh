@@ -66,21 +66,34 @@ if [ "$HOSTNAME" = slab ]; then
     PS1=$PS1_CFG
     }
 else #NOT RUNNING ON SLAB
-    #printf '%s\n' "uh-oh, not on foo"
+    #echo "Default env"
+    export IP_TITAN="192.168.1.137"
+    export IP_MR="192.168.1.160"
     echo "Not running on slab"
+    echo "IP_TITAN:$IP_TITAN"
+    echo "IP_MR:$IP_MR"
     #DRSMOD custom prompt & palette
     PS1_CFG="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
     #set Prompt
     PS1=$PS1_CFG
+
     go_mrbox_ssh(){
-    echo 'sshpass -p 'themoose' ssh darwin@192.168.1.140'
+    echo "sshpass -p 'themoose' ssh darwin@$IP_MR"
     echo 'for ifconfig: /sbin/ifconfig'
-    sshpass -p 'themoose' ssh darwin@192.168.1.140
+    sshpass -p 'themoose' ssh darwin@$IP_MR
     }
 
     go_mrbox_telnet(){
-    echo 'telnet 192.168.1.140'
-    telnet 192.168.1.140
+    echo "telnet $IP_MR"
+    telnet $IP_MR
+    }
+
+    go_mrbox_scp_testscripts(){
+    echo "sshpass -p 'themoose' scp -r ~/LinuxToolbox/STB_Scripts/STR_Scripts darwin@$IP_MR://"
+    echo "Copying ~/STR_Scripts/ to target:"
+    ls ~/STR_Scripts/
+    echo 'for ifconfig: /sbin/ifconfig'
+    sshpass -p 'themoose' scp -r ~/LinuxToolbox/STB_Scripts/STR_Scripts darwin@$IP_MR://
     }
 
     go_ping_network(){
@@ -122,7 +135,6 @@ else #NOT RUNNING ON SLAB
       #SSHFS='sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
       #MOUNTDIR="/home/dsw12/remote-mount"
       if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
-      echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:$STRINGPATH /home/dsw12/remote-mount/'
       SSHFS="sshfs -o allow_other dsw12@slab:"$STRINGPATH" /home/dsw12/remote-mount/"
       #use home instead of ~ as we grep for path to see if we need to unmount first
       MOUNTSUBDIR="remote-mount"
@@ -134,10 +146,9 @@ else #NOT RUNNING ON SLAB
       if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
       if [[ $2 == /* ]]; then MOUNTDIR=$2; else MOUNTDIR="$HOME/$2"; fi
       SSHFS="sshfs -o allow_other dsw12@slab:$STRINGPATH $MOUNTDIR"
-      echo "Chosen mount path: $SSHFS"
       MOUNTSUBDIR="$2"
     fi
-    echo "$SSHFS"
+    echo "Chosen mount path: $SSHFS"
     echo "Looking good, y to accept:"
     read ContinueState
 
