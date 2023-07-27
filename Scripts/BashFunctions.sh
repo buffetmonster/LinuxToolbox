@@ -14,6 +14,7 @@ if [ -z ${WSL_DISTRO_NAME} ]; then
     CUSTOM_NAME=${HOSTNAME}
 else
     CUSTOM_NAME=${WSL_DISTRO_NAME}
+    #Note WSL is in quiet mode to disable remove /home/dsw12/.hushlogin
     echo "Running WSL: $WSL_DISTRO_NAME"
 fi
 #Are we on the server slab
@@ -69,6 +70,7 @@ else #NOT RUNNING ON SLAB
     #echo "Default env"
     export IP_TITAN="192.168.1.137"
     export IP_MR="192.168.1.160"
+    export STB_SCRIPTS=~/LinuxToolbox/STB_Scripts/STR_Scripts
     echo "Not running on slab"
     echo "IP_TITAN:$IP_TITAN"
     echo "IP_MR:$IP_MR"
@@ -89,11 +91,10 @@ else #NOT RUNNING ON SLAB
     }
 
     go_mrbox_scp_testscripts(){
-    echo "sshpass -p 'themoose' scp -r ~/LinuxToolbox/STB_Scripts/STR_Scripts darwin@$IP_MR://"
-    echo "Copying ~/STR_Scripts/ to target:"
-    ls ~/STR_Scripts/
-    echo 'for ifconfig: /sbin/ifconfig'
-    sshpass -p 'themoose' scp -r ~/LinuxToolbox/STB_Scripts/STR_Scripts darwin@$IP_MR://
+    echo "sshpass -p 'themoose' scp -r $STB_SCRIPTS darwin@$IP_MR://"
+    echo "Copying $STB_SCRIPTS to target:"
+    ls "$STB_SCRIPTS"
+    sshpass -p 'themoose' scp -r $STB_SCRIPTS darwin@$IP_MR://
     }
 
     go_ping_network(){
