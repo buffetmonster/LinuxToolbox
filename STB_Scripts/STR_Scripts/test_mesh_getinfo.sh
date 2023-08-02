@@ -24,7 +24,7 @@ echo -e "\\n"
 echo "Get Kernel Version"
 if [ -f "/VERSION.gz" ];then
 echo "unpack VERSION.gz"
-gunzip VERSION.gz -d
+gunzip /VERSION.gz -d
 fi
 if [ -f "/VERSION" ];then
 echo "VERSION:"
