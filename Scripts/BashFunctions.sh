@@ -203,7 +203,9 @@ else #NOT RUNNING ON SLAB
     }
 
     go_get_wifi (){
-      netsh.exe wlan show profile "name=BT-PJA6W2" key=clear | grep "Key"
+      WIFI_ID="BT-PJA6W2"
+      echo -n "$WIFI_ID"
+      netsh.exe wlan show profile "name=$WIFI_ID" key=clear | grep "Key"
     }
 
     go_foxyproxy_ssh(){
