@@ -1,0 +1,4 @@
+in order to use this, copy or symlink it to ~/
+for example
+cd ~/
+ln -s /home/dsw12/LinuxToolbox/gitconfig/.gitconfig .gitconfig

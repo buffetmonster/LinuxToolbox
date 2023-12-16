@@ -84,7 +84,14 @@ else #NOT RUNNING ON SLAB
     export IP_MR=10.242.28.248
     export IP_MR=192.168.0.15
     export STB_SCRIPTS=$LINUXTOOLBOX/STB_Scripts/STR_Scripts
+    #this is for symbolic links into Window, assuming this is WSL!
+    export PATH=$PATH:~/WinApps
+    #for example in WinApps
+    #ln -s /mnt/c/Program\ Files\ \(x86\)/Meld/Meld.exe meld
+    #C:\Users\d_r_s\AppData\Local\Microsoft\WindowsApps\python3.exe
+
     echo "Not running on slab"
+    echo "Windows Linked apps go here:~/WinApps/"
     echo "IP_TITAN:$IP_TITAN"
     echo "IP_MR:$IP_MR"
     #DRSMOD custom prompt & palette
