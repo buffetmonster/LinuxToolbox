@@ -81,6 +81,8 @@ else #NOT RUNNING ON SLAB
     #echo "Default env"
     export IP_TITAN="192.168.1.137"
     export IP_MR="192.168.1.160"
+    export IP_MR=10.242.28.248
+    export IP_MR=192.168.0.15
     export STB_SCRIPTS=$LINUXTOOLBOX/STB_Scripts/STR_Scripts
     echo "Not running on slab"
     echo "IP_TITAN:$IP_TITAN"
@@ -209,9 +211,10 @@ else #NOT RUNNING ON SLAB
     }
 
     go_foxyproxy_ssh(){
-    echo 'ssh -D 9998 -C2Nn dev-jumphost'
-    echo 'FoxyProxy Host:localhost port:9998 SOCKS proxy AND Socks v5, 2 radio button, not one, no login authentication details needed'
-    echo 'URL pattern *bskyb*'
+    #below is deprecated, can remove probably
+    #echo 'ssh -D 9998 -C2Nn dev-jumphost'
+    #echo 'FoxyProxy Host:localhost port:9998 SOCKS proxy AND Socks v5, 2 radio button, not one, no login authentication details needed'
+    #echo 'URL pattern *bskyb*'
     echo 'to reset keys (~/.ssh) it is ssh-copy-id dswan@10.241.0.89'
     echo 'wait 2 seconds......'
     sleep 2
@@ -222,7 +225,10 @@ else #NOT RUNNING ON SLAB
     do
     	pkill -9 ssh
     	echo "Welcome orcus $i times-Starting foxyproxy ssh"
+      echo 'ssh -D 9998 orcus -C2Nn'
     	ssh -D 9998 orcus -C2Nn
+      echo 'Connected'
+      ifconfig
     	done
     }
 
