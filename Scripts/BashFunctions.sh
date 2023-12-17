@@ -294,7 +294,38 @@ else #NOT RUNNING ON SLAB
     echo -e "$MyNet up & ${RED}Offline${NC}\n"
     fi
     }
+
+    git_clone_sub ()
+    {
+    if [ -z "$2" ]
+      then
+        echo 'Insufficent, you need to know the subdirectory you are trying to clone'
+        echo 'for example:'
+        echo 'git clone-sub required-subdirectory https://repo-url/repo-name.git'
+        return 1
+    fi
+        #git clone-sub dbus-example https://github.com/wware/stuff.git
+        REPO_NAME="$(echo $2 | grep -oE '[^/]+$')";
+        REPO_NAME2="${REPO_NAME%.*}"
+        echo "here:"
+        echo "repo:$REPO_NAME Directory:$REPO_NAME2"
+        echo "repo:$2 Directory:$1"
+        git clone --filter=blob:none --no-checkout $2
+        cd $REPO_NAME2;
+        #cd stuff
+        git sparse-checkout set --no-cone "$1/*"
+        if [ -n "$3" ]; then
+            git pull origin $3;
+            git checkout $3;
+        else
+            git fetch origin;
+            git checkout main
+            [[ $? != 0 ]] && git checkout master;
+        fi
+    }
+
     #Scripts to run by default on slab
+    echo "ADDING git_clone_sub: allows git clone-sub via alias in .gitconfig"
     go_network_check
 fi #NOT RUNNING ON SLAB
 #common bash functions can go here
