@@ -211,6 +211,12 @@ else #NOT RUNNING ON SLAB
         cd /mnt/c/Users/DSW12/MobaXterm/home/
     }
 
+    go_onedrive (){
+      WIN_USER=$(ls /mnt/c/Users | grep -i d | grep -i s | grep -i w)
+      echo "We found the windows user for dave: $WIN_USER"
+      cd /mnt/c/Users/$WIN_USER/OneDrive
+    }
+
     go_get_wifi (){
       WIFI_ID="BT-PJA6W2"
       echo -n "$WIFI_ID"
