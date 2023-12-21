@@ -212,8 +212,16 @@ else #NOT RUNNING ON SLAB
     }
 
     go_onedrive (){
-      WIN_USER=$(ls /mnt/c/Users | grep -i dsw12) | (ls /mnt/c/Users | grep -i d_r_s) > /dev/null
+      WIN_USER1=$(ls /mnt/c/Users | grep -i dsw12) 
+      WIN_USER2=$(ls /mnt/c/Users | grep -i d_r_s)
+      if [ -v WIN_USER1 ]; then
+        WIN_USER=$WIN_USER1
+      fi
+      if [ -v WIN_USER2 ]; then
+        WIN_USER=$WIN_USER2
+      fi
       echo "We found the windows user for dave: $WIN_USER"
+      echo "trying to cd to directoy:/mnt/c/Users/$WIN_USER/OneDrive"
       cd /mnt/c/Users/$WIN_USER/OneDrive
     }
 
