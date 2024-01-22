@@ -136,6 +136,65 @@ else #NOT RUNNING ON SLAB
     ssh pi@192.168.1.188
     }
 
+    go_oreo_ssh(){
+    echo '_ssh dsw12@oreo'
+    ssh dsw12@oreo
+    }
+
+    go_oreo_sshfs(){
+    if [ -z "$1" ]
+      then
+        echo 'verbose example: sshfs -o allow_other dsw12@oreo:/home/dsw12/RDK_Downloads/ /home/dsw12/remote-mount/'
+        echo 'sshfs -o allow_other dsw12@oreo:/home/dsw12/'$1 $2
+        echo "add remote path, local will default to /home/dsw12/remote-mount/ if no path provide"
+        return 1
+    fi
+    if [ $# -eq 1 ]; then
+      echo 'One params passed'
+      echo " "
+      #echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+      #SSHFS='sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+      #MOUNTDIR="/home/dsw12/remote-mount"
+      if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+      SSHFS="sshfs -o allow_other dsw12@oreo:"$STRINGPATH" /home/dsw12/remote-mount/"
+      #use home instead of ~ as we grep for path to see if we need to unmount first
+      MOUNTSUBDIR="remote-mount"
+      MOUNTDIR="$HOME/$MOUNTSUBDIR"
+    fi
+    if [ $# -eq 2 ]; then
+      echo 'Two params passed'
+      echo " "
+      if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+      if [[ $2 == /* ]]; then MOUNTDIR=$2; else MOUNTDIR="$HOME/$2"; fi
+      SSHFS="sshfs -o allow_other dsw12@oreo:$STRINGPATH $MOUNTDIR"
+      MOUNTSUBDIR="$2"
+    fi
+    echo "Chosen mount path: $SSHFS"
+    echo "Looking good, y to accept:"
+    read ContinueState
+
+    if [ "$ContinueState" != "y" ]; then
+    echo "bye!"
+      return 1
+    fi
+
+    if grep -qs $MOUNTDIR /proc/mounts; then
+    #if mount | grep $MOUNTDIR > /dev/null; then
+        #we never want to unmount if we're in the mounted directory.
+        #Belt and braces cd to home directory before umount then cd back to current directory to ensure it can't happen
+        CURRENTDIR=$PWD
+        cd ~/
+        echo "It's mounted, unmounting $MOUNTDIR"; umount $MOUNTDIR;
+        cd $CURRENTDIR
+    fi
+    #mount the directory
+    echo "Mounting: $MOUNTDIR"
+    $SSHFS
+    mount | grep sshfs
+    #go_set_title_bannerx "sshfs $MOUNTSUBDIR"
+    go_set_titlex "sshfs: $MOUNTSUBDIR"
+    }
+
     go_slab_ssh(){
     echo '_ssh dsw12@slab'
     ssh dsw12@slab
