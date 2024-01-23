@@ -455,6 +455,9 @@ if [[ -z "$ORIG" ]]; then
 fi
 TITLE="\[\e]2;$*\a\]"
 PS1=${ORIG}${TITLE}
+if [[ -n "$VIRTUAL_ENV" ]]; then
+  PS1="v"${ORIG}${TITLE}
+fi
 }
 go_set_title_bannerx(){
 #echo -e '\033]2;'$mytitle'\007'
