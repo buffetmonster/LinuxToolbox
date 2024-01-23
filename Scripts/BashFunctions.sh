@@ -18,10 +18,18 @@ else
     #Note WSL is in quiet mode, to disable remove /home/dsw12/.hushlogin
     echo "Running WSL: $WSL_DISTRO_NAME"
 fi
-#Are we on the server slab
-if [ "$HOSTNAME" = slab ]; then
+#ONSERVER="False"
+if ! pgrep -u $USER sshd >/dev/null; then
+    echo "sshd is not running for user $USER, we are probably local"
+    ONSERVER="False"
+else
+    echo "sshd is running for user $USER, we are probably on a remote server"
+    ONSERVER="True"
+fi
+#Are we on a server?
+if [ "$ONSERVER" == "True" ]; then
     #printf '%s\n' "on the right host"
-    echo "Running on slab"
+    echo "Running on Server: $HOSTNAME"
     #On slab use default prompt, but backup as we need to restore post pythoon vert env
     PS1_CFG=$PS1
     ORIG=$PS1
@@ -90,7 +98,7 @@ else #NOT RUNNING ON SLAB
     #ln -s /mnt/c/Program\ Files\ \(x86\)/Meld/Meld.exe meld
     #C:\Users\d_r_s\AppData\Local\Microsoft\WindowsApps\python3.exe
 
-    echo "Not running on slab"
+    echo "Not on Server: $HOSTNAME"
     echo "Windows Linked apps go here:~/WinApps/"
     echo "IP_TITAN:$IP_TITAN"
     echo "IP_MR:$IP_MR"
