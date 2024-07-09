@@ -1,5 +1,5 @@
 #ALL NEW SCRIPTS 2023!
-
+echo "loaded go_ helper script:$BASH_SOURCE"
 # Various colours
 RED="\033[0;31m"
 YELLOW="\033[0;33m"
@@ -90,7 +90,7 @@ else #NOT RUNNING ON SLAB
     export IP_TITAN="192.168.1.137"
     export IP_MR="192.168.1.160"
     export IP_MR=10.242.28.248
-    export IP_MR=192.168.0.15
+    export IP_PI=192.168.1.202
     export STB_SCRIPTS=$LINUXTOOLBOX/STB_Scripts/STR_Scripts
     #this is for symbolic links into Window, assuming this is WSL!
     export PATH=$PATH:~/WinApps
@@ -100,13 +100,24 @@ else #NOT RUNNING ON SLAB
 
     echo "Not on Server: $HOSTNAME"
     echo "Windows Linked apps go here:~/WinApps/"
-    echo "IP_TITAN:$IP_TITAN"
-    echo "IP_MR:$IP_MR"
+    #echo "IP_TITAN:$IP_TITAN"
+    #echo "IP_MR:$IP_MR"
+    echo "IP_PI:$IP_PI"
     #DRSMOD custom prompt & palette
     PS1_CFG="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
     #set Prompt
     PS1=$PS1_CFG
 
+    go_python_virtual_env(){
+    echo "setup local python virtual env"
+    #echo "Localenvsetup" > myvertualenv.txt
+    if ! command -v deactivate &> /dev/null; then
+    echo "Virtualenv is not activated, continue."
+    fi
+    python3 -m venv ./venv
+    source ./venv/bin/activate
+    pip3 install -r requirements.txt
+    }
     go_mrbox_ssh(){
     echo "sshpass -p 'themoose' ssh darwin@$IP_MR"
     echo 'for ifconfig: /sbin/ifconfig'
@@ -140,8 +151,8 @@ else #NOT RUNNING ON SLAB
     }
 
     go_pi_ssh(){
-    echo '_ssh pi@192.168.1.188'
-    ssh pi@192.168.1.188
+    echo "_ssh pi@$IP_PI"
+    ssh pi@$IP_PI
     }
 
     go_oreo_ssh(){
@@ -264,13 +275,68 @@ else #NOT RUNNING ON SLAB
 
     go_scp_from_pi(){
     echo 'copy from pi, use . or path for destination'
-    echo "pi@192.168.1.188://home/pi/$1 $2"
-    scp -r pi@192.168.1.188://home/pi/$1 $2
+    echo "pi@$IP_PI://home/pi/$1 $2"
+    scp -r pi@$IP_PI://home/pi/$1 $2
     }
     go_scp_to_pi(){
     echo 'copy to pi'
-    echo "scp -r $1 pi@192.168.1.188://home/pi/$2"
-    scp -r $1 pi@192.168.1.188://home/pi/$2
+    echo "scp -r $1 pi@$IP_PI://home/pi/$2"
+    scp -r $1 pi@$IP_PI://home/pi/$2
+    }
+
+    go_pi_sshfs(){
+    if [ -z "$1" ]
+      then
+        echo 'verbose example: sshfs -o allow_other dsw12@slab:/home/dsw12/RDK_Downloads/ /home/dsw12/remote-mount/'
+        echo 'sshfs -o allow_other dsw12@slab:/home/dsw12/'$1 $2
+        echo "add remote path, local will default to /home/dsw12/remote-mount/ if no path provide"
+        return 1
+    fi
+    if [ $# -eq 1 ]; then
+      echo 'One params passed'
+      echo " "
+      #echo 'Chosen mount path: sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+      #SSHFS='sshfs -o allow_other dsw12@slab:/home/dsw12/'$1' /home/dsw12/remote-mount/'
+      #MOUNTDIR="/home/dsw12/remote-mount"
+      if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/pi/$1"; fi
+      SSHFS="sshfs -o allow_other pi@$IP_PI:"$STRINGPATH" /home/dsw12/remote-mount/"
+      #use home instead of ~ as we grep for path to see if we need to unmount first
+      MOUNTSUBDIR="remote-mount"
+      MOUNTDIR="$HOME/$MOUNTSUBDIR"
+    fi
+    if [ $# -eq 2 ]; then
+      echo 'Two params passed'
+      echo " "
+      if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/pi/$1"; fi
+      #if [[ $1 == /* ]]; then STRINGPATH=$1; else STRINGPATH="/home/dsw12/$1"; fi
+      if [[ $2 == /* ]]; then MOUNTDIR=$2; else MOUNTDIR="$HOME/$2"; fi
+      SSHFS="sshfs -o allow_other pi@$IP_PI:$STRINGPATH $MOUNTDIR"
+      MOUNTSUBDIR="$2"
+    fi
+    echo "Chosen mount path: $SSHFS"
+    echo "Looking good, y to accept:"
+    read ContinueState
+
+    if [ "$ContinueState" != "y" ]; then
+    echo "bye!"
+      return 1
+    fi
+
+    if grep -qs $MOUNTDIR /proc/mounts; then
+    #if mount | grep $MOUNTDIR > /dev/null; then
+        #we never want to unmount if we're in the mounted directory.
+        #Belt and braces cd to home directory before umount then cd back to current directory to ensure it can't happen
+        CURRENTDIR=$PWD
+        cd ~/
+        echo "It's mounted, unmounting $MOUNTDIR"; umount $MOUNTDIR;
+        cd $CURRENTDIR
+    fi
+    #mount the directory
+    echo "Mounting: $MOUNTDIR"
+    $SSHFS
+    mount | grep sshfs
+    #go_set_title_bannerx "sshfs $MOUNTSUBDIR"
+    go_set_titlex "sshfs: $MOUNTSUBDIR"
     }
 
     go_mobx_home (){
