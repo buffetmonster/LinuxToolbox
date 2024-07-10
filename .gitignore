@@ -1,0 +1,10 @@
+# Ignore everything except...
+**/*
+# Allow specific file types
+!**/*.txt
+!**/*.sh
+!**/Dockerfile
+!**/.gitignore
+# Ignore any empty directories
+!**/
+# Exclude extra directories
