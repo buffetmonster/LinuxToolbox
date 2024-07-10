@@ -9,14 +9,3 @@
 	name = davey
 [safe]
 	directory = *
-[url "git@skyswteam.com/spk_core/spk_core.git"]
-        insteadof = git@skyswteam.com/themeshteam/airties/vendor/sky-spk-core.git
-
-[url "git@skyswteam.com/spk_core/sky_package.git"]
-        insteadof = git@skyswteam.com/themeshteam/airties/vendor/sky-spk-package.git
-
-[url "git@skyswteam.com/spk_core/sky_dl.git"]
-        insteadof = git@skyswteam.com/themeshteam/airties/vendor/sky-spk-dl.git
-
-[url "git@skyswteam.com/spk_core/sky_device.git"]
-        insteadof = git@skyswteam.com/themeshteam/airties/vendor/sky-spk-target.git
