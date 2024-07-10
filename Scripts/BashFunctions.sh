@@ -366,6 +366,45 @@ else #NOT RUNNING ON SLAB
       netsh.exe wlan show profile "name=$WIFI_ID" key=clear | grep "Key"
     }
 
+    go_apt_essentials(){
+      #echo "$password"
+      read -sp "Enter your password to install essential apps:" password
+      echo "$password" | sudo -S apt install net-tools tree -y
+    }
+
+    go_apt_docker(){
+      #read -sp "Enter your password to install essential apps:" password
+      echo "$password" | sudo -S apt install docker.io
+      echo "$password" | sudo -S groupadd docker
+      echo "$password" | sudo -S usermod -aG docker $USER
+      #newgrp docker #not nesessary as using usermod to add group...probably...
+    }
+    go_docker_create(){
+      echo "create a generic docker instance in current directory"
+      echo "to remove old images docker rmi id -f"
+      mkdir -p ./docker/workspace
+      script_dir="$(dirname -- "$BASH_SOURCE")"
+      #echo $script_dir/../GenericFiles
+      #cat $script_dir/../GenericFiles/Dockerfile
+      cp $script_dir/../GenericFiles/Dockerfile ./docker/
+      read -sp "Enter your password to install essential apps:" password
+      echo "$password"
+      echo "$password" | sudo -S service docker start
+      #echo "service started"
+      echo "$password" | sudo -S service docker status
+      docker build -t mydockerimage ./docker
+      docker image ls
+      #mkdir ./workspace
+      #run if forground
+      #docker run -v ./workspace:/docker/workspace -it --rm mydockerimage
+      #run if forground with persistant mapped storage
+      docker run -v $PWD/docker/workspace:/workspace -it --rm mydockerimage
+      #run in background needs work!
+      #docker run -d --rm mydockerimage
+      #docker ps # check the docker ps is actually running now
+    }
+    #go_docker_run
+
     go_foxyproxy_ssh(){
     #below is deprecated, can remove probably
     #echo 'ssh -D 9998 -C2Nn dev-jumphost'
