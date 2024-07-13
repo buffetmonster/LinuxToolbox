@@ -387,6 +387,7 @@ else #NOT RUNNING ON SLAB
       #echo $script_dir/../GenericFiles
       #cat $script_dir/../GenericFiles/Dockerfile
       cp $script_dir/../GenericFiles/Dockerfile ./docker/
+      cp $script_dir/../GenericFiles/dockeralive.sh ./docker/
       read -sp "Enter your password to install essential apps:" password
       echo "$password"
       echo "$password" | sudo -S service docker start
@@ -395,13 +396,20 @@ else #NOT RUNNING ON SLAB
       docker build -t mydockerimage ./docker
       docker image ls
       #mkdir ./workspace
-      #run if forground
+      ### run if foreground ###
       #docker run -v ./workspace:/docker/workspace -it --rm mydockerimage
       #run if forground with persistant mapped storage
-      docker run -v $PWD/docker/workspace:/workspace -it --rm mydockerimage
-      #run in background needs work!
-      #docker run -d --rm mydockerimage
-      #docker ps # check the docker ps is actually running now
+      #docker run -v $PWD/docker/workspace:/workspace -it --rm mydockerimage
+      ### run in background only works if it's actually doing a job ###
+      #added dockeralive.sh which updates a file every minute with currect data
+      #if running in background then stop all the containers
+      docker stop $(docker ps -aq)
+      #now start the container we actually want
+      container_id=$(docker run -v $PWD/docker/workspace:/workspace -d mydockerimage)
+      echo "Container ID: $container_id"
+      docker ps # check the docker ps is actually running now
+      docker exec -it $container_id /bin/bash
+      
     }
     #go_docker_run
 

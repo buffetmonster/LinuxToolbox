@@ -1,3 +1,13 @@
 FROM ubuntu
-RUN apt update
-RUN apt install git -y
+
+RUN apt-get update
+
+RUN apt-get install git -y
+
+WORKDIR /autostartjob
+
+COPY dockeralive.sh .
+
+RUN chmod +x dockeralive.sh
+
+CMD ["/autostartjob/dockeralive.sh"]
