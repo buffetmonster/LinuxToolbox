@@ -380,6 +380,10 @@ else #NOT RUNNING ON SLAB
       #newgrp docker #not nesessary as using usermod to add group...probably...
     }
     go_docker_create(){
+      if [ $PWD = "$HOME" ]; then
+        echo "You are in your home directory, make a subdirectory"
+        return
+      fi
       echo "create a generic docker instance in current directory"
       echo "to remove old images docker rmi id -f"
       mkdir -p ./docker/workspace
