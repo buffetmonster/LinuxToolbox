@@ -7,7 +7,9 @@ GREEN="\033[0;32m"
 CYAN="\033[0;36m"
 NC="\033[0m"
 #Set this to the installed directory, if cloned to root of user will be ~/LinuxToolbox
-export LINUXTOOLBOX=~/LinuxToolbox
+#export LINUXTOOLBOX=~/LinuxToolbox
+export LINUXTOOLBOXSCRIPTS=$(dirname "${BASH_SOURCE[0]}")
+export LINUXTOOLBOX=${LINUXTOOLBOXSCRIPTS}/..
 LS_COLORS='rs=0:di=1;35:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:';
 export LS_COLORS
 if [ -z ${WSL_DISTRO_NAME} ]; then
@@ -374,9 +376,9 @@ else #NOT RUNNING ON SLAB
 
     go_apt_docker(){
       #read -sp "Enter your password to install essential apps:" password
-      echo "$password" | sudo -S apt install docker.io
-      echo "$password" | sudo -S groupadd docker
-      echo "$password" | sudo -S usermod -aG docker $USER
+      echo "$password" | sudo -S apt install docker.io -y
+      echo "$password" | sudo -S groupadd docker -y
+      echo "$password" | sudo -S usermod -aG docker $USER -y
       #newgrp docker #not nesessary as using usermod to add group...probably...
     }
     go_docker_create(){
@@ -394,10 +396,17 @@ else #NOT RUNNING ON SLAB
       cp $script_dir/../GenericFiles/dockeralive.sh ./docker/
       read -sp "Enter your password to install essential apps:" password
       echo "$password"
-      echo "$password" | sudo -S service docker start
+      echo "$password" | sudo -S service docker start -y
       #echo "service started"
-      echo "$password" | sudo -S service docker status
-      docker build -t mydockerimage ./docker
+      #following is blocking, use alternative for now
+      #echo "$password" | sudo -S service docker status -y
+      ps aux | grep dockerd
+      ls /var/run/docker.sock
+      systemctl is-active docker
+      echo "$password" | sudo -S docker info
+      #echo "exit here!!!!!!!!!!!!!!!"
+      #return
+      sudo docker build -t mydockerimage ./docker
       docker image ls
       #mkdir ./workspace
       ### run if foreground ###
@@ -409,10 +418,31 @@ else #NOT RUNNING ON SLAB
       #if running in background then stop all the containers
       docker stop $(docker ps -aq)
       #now start the container we actually want
-      container_id=$(docker run -v $PWD/docker/workspace:/workspace -d mydockerimage)
-      echo "Container ID: $container_id"
-      docker ps # check the docker ps is actually running now
-      docker exec -it $container_id /bin/bash
+      if docker ps -a | grep "python_docker_app"; then
+        #container already exists, no need to recreate
+        echo "container already exists : python_docker_app"
+        echo "this can be purged with : docker rm -f \$(docker ps -aq)"
+      else
+        #create the container
+        docker run -v $PWD/docker/workspace:/workspace -d --name "python_docker_app" -p 5000:5000 mydockerimage
+        echo "container created : python_docker_app"
+      fi
+
+      if docker ps --format '{{.Names}}' | grep "python_docker_app"; then
+        #container is already created
+        echo "exec : python_docker_app"
+        docker exec -it python_docker_app bash
+      else
+        echo "start and exec : python_docker_app"
+        docker start python_docker_app
+        docker exec -it python_docker_app bash
+      fi
+      return
+      #below does the same but for container id rather than assigned name
+      #container_id=$(docker run -v $PWD/docker/workspace:/workspace -d --name "python_docker_app" mydockerimage)
+      #echo "Container ID: $container_id"
+      #docker ps # check the docker ps is actually running now
+      #docker exec -it $container_id /bin/bash
       
     }
     #go_docker_run

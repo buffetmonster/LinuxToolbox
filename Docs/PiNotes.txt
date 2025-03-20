@@ -75,5 +75,9 @@ git clone git@github.com:buffetmonster/LinuxToolbox.git
 #tried to install meld, not really compatable with wsl2, so removed and sybolically linked windows versions of the tool.
 sudo apt remove meld
 sudo apt purge meld
-#Symbolic Links
-sudo ln -s /mnt/c/Program\ Files\ \(x86\)/Meld/Meld.exe /usr/bin/meld
+#Symbolic Linking WSL into Win 11
+#download meld and install on windows host
+https://meldmerge.org/
+#Within WSL
+mkdir ~/WinApps
+ln -s /mnt/c/Program\ Files/Meld/Meld.exe ~/WinApps/meld
