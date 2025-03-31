@@ -1,0 +1,6 @@
+#for vscode the following setting stored in the settings.json folder
+Ctrl+Alt+K    : keybidings
+Ctrl+Alt+T    : theme (use Light+ default light+)
+source files here /Scripts/WindowsWSL/ to be copied to user AppData directory:
+code C:\Users\Dave.Swan\AppData\Roaming\Code\User\keybindings.json
+code C:\Users\Dave.Swan\AppData\Roaming\Code\User\settings.json

@@ -1,0 +1,16 @@
+{
+    "workbench.editor.enablePreview": false,
+    "python.defaultInterpreterPath": "C:\\GitRepos\\PythonCollection\\WIN_OS\\WiFi\\venv",
+    "yaml.schemas": {
+        "file:///c%3A/Users/Dave.Swan/.vscode/extensions/atlassian.atlascode-3.4.21/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+    },
+    "atlascode.bitbucket.enabled": false,
+    "security.workspace.trust.untrustedFiles": "open",
+    "security.allowedUNCHosts": [
+        "wsl.localhost"
+    ],
+    "workbench.colorTheme": "Default Light+",
+    "workbench.editor.titleScrollbarSizing": "large",
+    "editor.scrollbar.horizontalScrollbarSize": 14,
+    "editor.scrollbar.verticalScrollbarSize": 16
+}

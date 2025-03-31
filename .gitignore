@@ -3,6 +3,7 @@
 # Allow specific file types
 !**/*.txt
 !**/*.sh
+!**/*.json
 !**/Dockerfile
 !**/.gitignore
 # Ignore any empty directories

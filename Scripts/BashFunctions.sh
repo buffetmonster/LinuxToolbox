@@ -375,10 +375,19 @@ else #NOT RUNNING ON SLAB
     }
 
     go_apt_docker(){
-      #read -sp "Enter your password to install essential apps:" password
-      echo "$password" | sudo -S apt install docker.io -y
-      echo "$password" | sudo -S groupadd docker -y
-      echo "$password" | sudo -S usermod -aG docker $USER -y
+      #for WSL microsoft have done some hacking to use windows desktop version, so to get the normal version to work we need to use script, it will change in futore but info from here:
+      #https://docs.docker.com/compose/install/linux/
+      #for non wsl can probably just install docker-compose-plugin
+      #WSL WA : manual install of docker-compose-plugin: start 
+      DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+      mkdir -p $DOCKER_CONFIG/cli-plugins
+      curl -SL https://github.com/docker/compose/releases/download/v2.34.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+      chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+      #WSL WA : manual install of docker-compose-plugin: end 
+      read -sp "Enter your password to install essential apps:" password
+      echo "$password" | sudo -S apt-get install docker.io -y
+      echo "$password" | sudo -S groupadd -f docker
+      echo "$password" | sudo -S usermod -aG docker $USER
       #newgrp docker #not nesessary as using usermod to add group...probably...
     }
     go_docker_create(){
