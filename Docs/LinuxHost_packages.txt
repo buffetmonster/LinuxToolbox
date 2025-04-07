@@ -43,10 +43,26 @@ sudo usermod -aG docker $USER
 newgrp docker
 
 #Enable ssh agent
+sudo apt install openssh-server
+sudo systemctl enable ssh
+sudo systemctl start ssh
+sudo systemctl status ssh
+
 mkdir -p ~/.config/systemd/user
 cp $LINUXTOOLBOXSCRIPTS/WindowsWSL/ssh-agent.service ~/.config/systemd/user/ssh-agent.service
 cp $LINUXTOOLBOXSCRIPTS/WindowsWSL/ssh-agent.socket ~/.config/systemd/user/ssh-agent.socket
 chmod 700 ~/.config/systemd/user/ssh-agent.socket
 systemctl --user enable ssh-agent.service
 systemctl --user start ssh-agent.socket
-systemctl --user enable ssh-agent.socket
+systemctl --user status ssh-agent.socket
+
+#RedHat oracle
+edit /etc/ssh/sshd_config and add Port 2222
+sudo dnf install openssh-server
+sudo systemctl enable sshd.service
+sudo systemctl start sshd.service
+sudo systemctl status sshd.service
+sudo systemctl status sshd.socket
+
+systemctl --user status ssh-agent.socket
+systemctl --user status ssh-agent.service
