@@ -88,11 +88,7 @@ if [ "$ONSERVER" == "True" ]; then
     }
 
 else #NOT RUNNING ON SLAB
-    #echo "Default env"
-    export IP_TITAN="192.168.1.137"
-    export IP_MR="192.168.1.160"
-    export IP_MR=10.242.28.248
-    export IP_PI=192.168.1.202
+    #echo "Default env moved to .bashrc for IP_MIHOME IP_PI"
     export STB_SCRIPTS=$LINUXTOOLBOX/STB_Scripts/STR_Scripts
     #this is for symbolic links into Window, assuming this is WSL!
     export PATH=$PATH:~/WinApps
@@ -103,7 +99,7 @@ else #NOT RUNNING ON SLAB
     echo "Not on Server: $HOSTNAME"
     echo "Windows Linked apps go here:~/WinApps/"
     #echo "IP_TITAN:$IP_TITAN"
-    #echo "IP_MR:$IP_MR"
+    echo "IP_MIHOME:$IP_MIHOME"
     echo "IP_PI:$IP_PI"
     #DRSMOD custom prompt & palette
     PS1_CFG="\[\e]0;\u@($CUSTOM_NAME)\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@$CUSTOM_NAME\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
@@ -120,10 +116,12 @@ else #NOT RUNNING ON SLAB
     source ./venv/bin/activate
     pip3 install -r requirements.txt
     }
-    go_mrbox_ssh(){
-    echo "sshpass -p 'themoose' ssh darwin@$IP_MR"
-    echo 'for ifconfig: /sbin/ifconfig'
-    sshpass -p 'themoose' ssh darwin@$IP_MR
+    go_mihome_ssh(){
+    #echo "sshpass -p 'themoose' ssh darwin@$IP_MR"
+    #echo 'for ifconfig: /sbin/ifconfig'
+    #sshpass -p 'themoose' ssh darwin@$IP_MR
+    echo "logging onto mihome:root@$IP_MIHOME"
+    ssh root@$IP_MIHOME
     }
 
     go_mrbox_telnet(){

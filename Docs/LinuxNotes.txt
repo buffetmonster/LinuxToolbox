@@ -1,0 +1,25 @@
+#convert static IP to dynamic DHCP
+nano /etc/NetworkManager/system-connections/enp1s0.nmconnection
+#modify like this:
+[ipv4]
+#default fixed
+#address1=10.114.132.10/22
+#method=manual
+#modified dhcp'd
+method=auto
+sudo systemctl restart NetworkManager
+ifconfig enp1s0 down
+ifconfig enp1s0 up
+should now see address assinged via router
+#need to set up ssh agent so for me it's
+#ssh root@192.168.1.197
+cd ~/.ssh
+ssh -i private-key-id root@192.168.1.197
+
+#grub for 4k tv
+cp /etc/default/grub /etc/default/bu_grub
+nano /etc/default/grub
+#modify like this:
+GRUB_CMDLINE_LINUX="crashkernel=1G-64G:448M,64G-:512M resume=UUID=01a61953-7c8a-4865-a8cc-19ab1c184e0d rhgb quiet video=1920x1080"
+#rebuild image params
+grub2-mkconfig -o /boot/grub2/grub.cfg

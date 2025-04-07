@@ -1,9 +1,11 @@
-# Ignore everything except...
+l# Ignore everything except...
 **/*
 # Allow specific file types
 !**/*.txt
 !**/*.sh
 !**/*.json
+!**/*.service
+!**/*.socket
 !**/Dockerfile
 !**/.gitignore
 # Ignore any empty directories

@@ -41,3 +41,12 @@ sudo docker run hello-world
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
+
+#Enable ssh agent
+mkdir -p ~/.config/systemd/user
+cp $LINUXTOOLBOXSCRIPTS/WindowsWSL/ssh-agent.service ~/.config/systemd/user/ssh-agent.service
+cp $LINUXTOOLBOXSCRIPTS/WindowsWSL/ssh-agent.socket ~/.config/systemd/user/ssh-agent.socket
+chmod 700 ~/.config/systemd/user/ssh-agent.socket
+systemctl --user enable ssh-agent.service
+systemctl --user start ssh-agent.socket
+systemctl --user enable ssh-agent.socket
