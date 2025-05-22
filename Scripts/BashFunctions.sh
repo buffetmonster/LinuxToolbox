@@ -20,6 +20,12 @@ else
     #Note WSL is in quiet mode, to disable remove /home/dsw12/.hushlogin
     echo "Running WSL: $WSL_DISTRO_NAME"
 fi
+if [ -z ${VSCODE_SERVER_DIR} ]; then
+    #where my_server is ssh/config target ID
+    #code --folder-uri=vscode-remote://ssh-remote+my_server/home/user/projects/my_project
+    VSCODE_SERVER_DIR=my_server/home/user/projects/my_project
+    echo "setting default generic target for vscode remote ssh : $VSCODE_SERVER_DIR"
+fi
 #ONSERVER="False"
 if ! pgrep -u $USER sshd >/dev/null; then
     echo "sshd is not running for user $USER, we are probably local"
@@ -116,12 +122,23 @@ else #NOT RUNNING ON SLAB
     source ./venv/bin/activate
     pip3 install -r requirements.txt
     }
-    go_mihome_ssh(){
+    go_mi-ssh(){
     #echo "sshpass -p 'themoose' ssh darwin@$IP_MR"
     #echo 'for ifconfig: /sbin/ifconfig'
     #sshpass -p 'themoose' ssh darwin@$IP_MR
     echo "logging onto mihome:root@$IP_MIHOME"
     ssh root@$IP_MIHOME
+    }
+    go_vscode_ssh(){
+    echo "Running vscode to connect with target: code --folder-uri=vscode-remote://ssh-remote+$VSCODE_SERVER_DIR"
+    echo "any key to continue"
+    read ContinueState
+    code --folder-uri=vscode-remote://ssh-remote+$VSCODE_SERVER_DIR
+    }
+
+    go_mi-ssh-add(){
+    echo "Please add ssh password for miplayer so it can be added to ssh keychain for $IP_MIHOME"
+    ssh-add ~/.ssh/miplayer
     }
 
     go_mrbox_telnet(){
@@ -598,8 +615,6 @@ go_funcx(){
 }
 go_reloadx(){
 echo "reloading bash script: (called via .bashrc)"
-echo "by default bashrc should use: source $LINUXTOOLBOX/BashFunctions.sh"
-echo "this can be changed by changing export LINUXTOOLBOX at top of file"
 echo "source  ~/.bashrc"
 source ~/.bashrc
 }
