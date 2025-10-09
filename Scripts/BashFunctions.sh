@@ -135,7 +135,12 @@ else #NOT RUNNING ON SLAB
     read ContinueState
     code --folder-uri=vscode-remote://ssh-remote+$VSCODE_SERVER_DIR
     }
-
+    go_vscoder_sshx(){
+    echo "Running vscode to connect with target: code --folder-uri=vscode-remote://ssh-remote+$VSCODE_SERVERX_DIR"
+    echo "any key to continue"
+    read ContinueState
+    code --folder-uri=vscode-remote://ssh-remote+$VSCODE_SERVERX_DIR
+    }
     go_mi-ssh-add(){
     echo "Please add ssh password for miplayer so it can be added to ssh keychain for $IP_MIHOME"
     ssh-add ~/.ssh/miplayer
@@ -631,6 +636,16 @@ fi
 go_set_title_bannerx(){
 #echo -e '\033]2;'$mytitle'\007'
 echo -e '\033]2;'$*'\007'
+}
+go_python_virtual_envx(){
+    echo "setup local python virtual env"
+    #echo "Localenvsetup" > myvertualenv.txt
+    if ! command -v deactivate &> /dev/null; then
+    echo "Virtualenv is not activated, continue."
+    fi
+    python3 -m venv ./venv
+    source ./venv/bin/activate
+    pip3 install -r requirements.txt
 }
 return 0
 
