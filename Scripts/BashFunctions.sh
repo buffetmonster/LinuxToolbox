@@ -41,23 +41,6 @@ if [ "$ONSERVER" == "True" ]; then
     #On slab use default prompt, but backup as we need to restore post pythoon vert env
     PS1_CFG=$PS1
     ORIG=$PS1
-    go_python_virtual_env()
-    {
-    #Setup virtual env by default
-    #export PATH=$PATH:/opt/repo_flow/
-    #export WORKON_HOME=/home/dswan
-    #source ~/PythonVirtualEnv/bin/activate
-    #export PATH=$PATH:~/local_progs/pypy3.7-v7.3.7-linux64/bin
-    echo $PATH
-    source ~/venv/bin/activate
-    #source ./PythonCollection/venv/bin/activate
-    echo #############
-    echo Default Virtual Env Started
-    echo #############
-    #set the window title
-    go_set_titlex Python
-    cd ~/PythonCollection/MeshBuildScripts/mesh-pyhon-scripts-v2-ad-hoc/
-    }
     go_shell_spk()
     {
     echo "Setting up python"
@@ -112,16 +95,6 @@ else #NOT RUNNING ON SLAB
     #set Prompt
     PS1=$PS1_CFG
 
-    go_python_virtual_env(){
-    echo "setup local python virtual env"
-    #echo "Localenvsetup" > myvertualenv.txt
-    if ! command -v deactivate &> /dev/null; then
-    echo "Virtualenv is not activated, continue."
-    fi
-    python3 -m venv ./venv
-    source ./venv/bin/activate
-    pip3 install -r requirements.txt
-    }
     go_mi-ssh(){
     #echo "sshpass -p 'themoose' ssh darwin@$IP_MR"
     #echo 'for ifconfig: /sbin/ifconfig'
