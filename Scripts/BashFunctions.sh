@@ -145,6 +145,11 @@ else #NOT RUNNING ON SLAB
     done
     }
 
+    go_ping_target(){
+    echo "ping target: $IP_MIHOME"
+    ping -c 1 $IP_MIHOME
+    }
+
     go_pi_ssh(){
     echo "_ssh pi@$IP_PI"
     ssh pi@$IP_PI
